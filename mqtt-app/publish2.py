@@ -15,7 +15,7 @@ mqttBroker = "mqtt.eclipseprojects.io"
 client = mqtt.Client("iot node2")
 client.connect(mqttBroker)
 client.on_connect = on_connect
-client.publish("SENSOR_DATA/CONNECT","IP: 123:123:123:1")
+client.publish("SENSOR_DATA/CONNECT","IP: 123:123:123:2")
 print("Connecting to server")
 
 

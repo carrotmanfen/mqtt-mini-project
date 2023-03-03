@@ -83,4 +83,5 @@ for i, row in df.iterrows():
     print("Just Ending Publishing")
     client.on_disconnect = on_disconnect
     time.sleep(180)
+    client.connect(mqttBroker)
 

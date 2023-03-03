@@ -88,8 +88,8 @@ while True:
     client.subscribe("SENSOR_DATA/THERMAL")
     client.subscribe("SENSOR_DATA/END")
     client.on_message = on_message
-    time.sleep(3000)
-    client.disconnect()
-    client.on_disconnect = on_disconnect
-    time.sleep(1)
-    client.loop_end()
+    # time.sleep(300000)
+    # client.disconnect()
+    # client.on_disconnect = on_disconnect
+    # time.sleep(1)
+    # client.loop_end()
