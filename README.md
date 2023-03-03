@@ -22,4 +22,4 @@
 2. install python, node และทุกอย่างที่จำเป็น
 3. run file subscribe.py และ publisher.py
 4. run query.py เพื่อดูข้อมูลใน database
-5. run api.js และเปิดเว็บ index.html เพื่อดูข้อมูลใน database แบบบนเว็บไซท์
+5. run api.js และเปิดเว็บ index.html เพื่อดูข้อมูลใน database แบบบนเว็บไซต์
