@@ -5,7 +5,7 @@ connection = pymysql.connect(host="localhost", user="root", password="", databas
 cursor = connection.cursor()
 
 # queries for sql command all rows
-query = "Select Thermal from sensor_data;"
+query = "Select * from sensor_data;"
 
 #executing the quires
 cursor.execute(query)
