@@ -4,12 +4,10 @@ import pymysql
 
 flag_connected = 0
 
-data_time = None
-data_node_id = None
-data_humidity = None
-data_temperature = None
-data_thermal = None
-first_send = True
+data_frame = [
+    # {'node_id':"", 'time':"", 'humidity':"", 'temperature':"", 'thermal':""}
+]
+data_format = {'node_id':"", 'time':"", 'humidity':"", 'temperature':"", 'thermal':""}
 
 # callback function on connect when connect/disconnect then print
 def on_connect(client, userdata, flags, rc):
@@ -24,46 +22,67 @@ def on_disconnect(client, userdata, rc):
 
 # callback function on message do something when got the message
 def on_message(client, userdata, message):
-    global data_time 
-    global data_node_id 
-    global data_humidity 
-    global data_temperature 
-    global data_thermal
-    
+    global data_format
+    global data_frame
+    checkDataFrame = True
     data = str(message.payload.decode("utf-8"))
+    dataSplit = data.split(";")
+    dataNode = dataSplit[0]
+    dataMessage = dataSplit[1]
     # if start set variable
     if str(message.topic)=="SENSOR_DATA/START":
-        data_time = ""
-        data_node_id = data
-        data_humidity = ""
-        data_temperature = ""
-        data_thermal = ""
+        for i in range(len(data_frame)):
+            if data_frame[i]['node_id']==dataNode:
+                data_frame[i]['time']=""
+                data_frame[i]['humidity']=""
+                data_frame[i]['temperature']=""
+                data_frame[i]['thermal']=""
+                checkDataFrame = False
+                
+        if checkDataFrame:
+            data_frame.insert(len(data_frame),{'node_id':dataNode, 'time':"", 'humidity':"", 'temperature':"", 'thermal':""})
+            print(data_frame)
 
     # if time get data in variable
     elif str(message.topic)=="SENSOR_DATA/TIME":
-        data_time = str(data_time) + str(data)
+        for i in range(len(data_frame)):
+            if data_frame[i]['node_id']==dataNode:
+                data_frame[i]['time'] = data_frame[i]['time'] + str(dataMessage)
 
     # if humidity get data in variable
     elif str(message.topic)=="SENSOR_DATA/HUMIDITY":
-        data_humidity = str(data_humidity) + str(data)
+        for i in range(len(data_frame)):
+            if data_frame[i]['node_id']==dataNode:
+                data_frame[i]['humidity'] = data_frame[i]['humidity'] + str(dataMessage)
 
     # if temperature get data in variable
     elif str(message.topic)=="SENSOR_DATA/TEMPERATURE":
-        data_temperature = str(data_temperature) + str(data)
+        for i in range(len(data_frame)):
+            if data_frame[i]['node_id']==dataNode:
+                data_frame[i]['temperature'] = data_frame[i]['temperature'] + str(dataMessage)
 
     # if thermal get data in variable 
     elif str(message.topic)=="SENSOR_DATA/THERMAL":
-        data_thermal = str(data_thermal) + str(data)
+        for i in range(len(data_frame)):
+            if data_frame[i]['node_id']==dataNode:
+                data_frame[i]['thermal'] = data_frame[i]['thermal'] + str(dataMessage)
 
     # if end send all data on variable to database
     elif str(message.topic)=="SENSOR_DATA/END":
-        print(data_thermal)
-        connection = pymysql.connect(host="localhost",user="root",password="",database="network2" )
-        cursor = connection.cursor()
-        insert = "INSERT INTO sensor_data(Time,NodeID,Humidity,Temperature,Thermal) VALUES('"+data_time+"','"+data_node_id+"','"+data_humidity+"','"+data_temperature+"','"+data_thermal+"');"
-        cursor.execute(insert)
-        connection.commit()
-        connection.close()
+        for i in range(len(data_frame)):
+            if data_frame[i]['node_id']==dataNode:
+                print(data_frame[i])
+                connection = pymysql.connect(host="localhost",user="root",password="",database="network2" )
+                cursor = connection.cursor()
+                insert = "INSERT INTO sensor_data(Time,NodeID,Humidity,Temperature,Thermal) VALUES('"+data_frame[i]['time']+"','"+data_frame[i]['node_id']+"','"+data_frame[i]['humidity']+"','"+data_frame[i]['temperature']+"','"+data_frame[i]['thermal']+"');"
+                cursor.execute(insert)
+                connection.commit()
+                connection.close()
+                data_frame[i]['time']=""
+                data_frame[i]['humidity']=""
+                data_frame[i]['temperature']=""
+                data_frame[i]['thermal']=""
+
         
     # if print something when publisher connect or disconnect
     if str(message.topic)=="SENSOR_DATA/CONNECT":
